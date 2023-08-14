@@ -48,50 +48,71 @@ function App() {
 
   const modifiedData = () => {
     const newData = [];
-    data.forEach((item: Idata, index) => {
+    data.forEach((item: Idata) => {
       const randomGenerator = seedrandom(seed);
       let { id, name, address, phone } = item;
-      const qwerty =
+
+      const calcErrCount =
         errorCount - Math.floor(errorCount) === 0.5
           ? Math.floor(errorCount) + (Math.floor(name.length) % 2)
           : Math.round(errorCount);
-      for (let j = 0; j < qwerty; j++) {
-        console.log(qwerty);
+      for (let j = 0; j < calcErrCount; j++) {
         const errorType = ["insert", "delete", "swap"];
-        // const errorIndex = Math.floor(randomGenerator() * 3);
-        // const qw = (randomGenerator() * name.length) % 3;
-
         const errorIndex = Math.floor(randomGenerator() * name.length) % 3;
-        const randomIndex = Math.floor(randomGenerator() * name.length);
-        // console.log(`${errorIndex}`);
+        const error = errorType[errorIndex];
 
-        if (errorType[errorIndex] === "insert") {
-          // console.log(`${randomIndex}-${randomGenerator()}`);
-          // console.log(`${name}---${index}`);
-          // console.log(`${randomIndex}`);
-          const newRandom = seedrandom(name);
-          const getAlphabet = alphabets.en;
-          const newIndex = Math.floor(newRandom() * getAlphabet.length);
-          const randomLetter = getAlphabet[newIndex];
-          // console.log(`${name}`);
-          //  console.log(`${name}-${randomLetter}-${randomIndex}`);
-          name =
-            name.slice(0, randomIndex) + randomLetter + name.slice(randomIndex);
-          // console.log(`${name}-${randomLetter}-${randomIndex}`);
-        } else if (errorType[errorIndex] === "delete") {
-          name = name.slice(0, randomIndex) + name.slice(randomIndex + 1);
-        } else if (errorType[errorIndex] === "swap") {
-          const nextIndex = randomIndex + 1;
-          name =
-            name.slice(0, randomIndex) +
-            name[nextIndex] +
-            name[randomIndex] +
-            name.slice(nextIndex + 1);
+        const dataFields = ["name", "address", "phone"];
+        const randomFieldIndex = Math.floor(randomGenerator() * 3);
+        const selectedField = dataFields[randomFieldIndex];
+
+        let changedValue = "";
+        if (selectedField === "name") {
+          changedValue = name;
+        } else if (selectedField === "phone") {
+          changedValue = phone;
+        } else if (selectedField === "address") {
+          changedValue = address;
+        }
+
+        const modifiedValue = ((field) => {
+          const randomIndex = Math.floor(randomGenerator() * field.length);
+          if (error === "insert") {
+            const newRandom = seedrandom(field);
+            const getAlphabet = alphabets.en;
+            const newIndex = Math.floor(newRandom() * getAlphabet.length);
+            const randomLetter = getAlphabet[newIndex];
+            return (field =
+              field.slice(0, randomIndex) +
+              randomLetter +
+              field.slice(randomIndex));
+          } else if (error === "delete") {
+            const newRandomIndex = Math.floor(randomGenerator() * field.length);
+            return (field =
+              field.slice(0, newRandomIndex) + field.slice(newRandomIndex + 1));
+          } else if (error === "swap") {
+            const newRandomIndex =
+              randomIndex == field.length - 1 ? randomIndex - 1 : randomIndex;
+            const nextIndex = newRandomIndex + 1;
+            return (field =
+              field.slice(0, randomIndex) +
+              field[nextIndex] +
+              field[randomIndex] +
+              field.slice(nextIndex + 1));
+          }
+        })(changedValue);
+
+        if (modifiedValue) {
+          if (selectedField === "name") {
+            name = modifiedValue;
+          } else if (selectedField === "phone") {
+            phone = modifiedValue;
+          } else if (selectedField === "address") {
+            address = modifiedValue;
+          }
         }
       }
       newData.push({ id, name, address, phone });
     });
-    // console.log(newData);
     setChangedData(newData);
   };
   const displayedData = errorCount === 0 ? data : changedData;
@@ -114,7 +135,7 @@ function App() {
         <label>Error Count:</label>
         <input
           type="number"
-          step="0.1"
+          step="1"
           className="form-control"
           value={errorCount}
           onChange={(e) => {
