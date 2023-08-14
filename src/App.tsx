@@ -78,12 +78,17 @@ function App() {
           const randomIndex = Math.floor(randomGenerator() * field.length);
           if (error === "insert") {
             const newRandom = seedrandom(field);
-            const getAlphabet = alphabets.en;
-            const newIndex = Math.floor(newRandom() * getAlphabet.length);
-            const randomLetter = getAlphabet[newIndex];
+            let randomSymbol;
+            if (selectedField == "phone") {
+              randomSymbol = Math.floor(newRandom() * 9);
+            } else {
+              const getAlphabet = alphabets.en;
+              const newIndex = Math.floor(newRandom() * getAlphabet.length);
+              randomSymbol = getAlphabet[newIndex];
+            }
             return (field =
               field.slice(0, randomIndex) +
-              randomLetter +
+              randomSymbol +
               field.slice(randomIndex));
           } else if (error === "delete") {
             const newRandomIndex = Math.floor(randomGenerator() * field.length);
