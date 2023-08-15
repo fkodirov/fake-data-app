@@ -3,17 +3,18 @@ import { useEffect, useState } from "react";
 import faker from "faker";
 import seedrandom from "seedrandom";
 import InfiniteScroll from "react-infinite-scroll-component";
+import { saveAs } from "file-saver";
+import { CSVLink } from "react-csv";
 const alphabets = {
   en: "abcdefghijklmnopqrstuvwxyz",
   pl: "aąbcćdeęfghijklłmnńoóprsśtuwyzźż",
   fn: "abcdefghijklmnopqrstuvwxyzåäö",
 };
 function App() {
-  const [data, setData] = useState<any[]>([]);
-  const [changedData, setChangedData] = useState<any[]>([]);
+  const [data, setData] = useState<Idata[]>([]);
+  const [changedData, setChangedData] = useState<Idata[]>([]);
   const [region, setRegion] = useState<string>("en");
   const [seed, setSeed] = useState<number>(0);
-  // const [hideSeed,setHideSeed]=useState<number>
   const [errorCount, setErrorCount] = useState<number>(0);
   const [count, setCount] = useState<number>(20);
   const [page, setPage] = useState<number>(1);
@@ -62,6 +63,17 @@ function App() {
       s.replace(/([a-z])/, (s) => s.toUpperCase())
     );
   };
+
+  const prepareCSVData = (data) => {
+    return data.map((item, index) => ({
+      Number: index + 1,
+      Id: item.id,
+      Name: item.name,
+      Address: item.address,
+      Phone: item.phone,
+    }));
+  };
+
   const modifiedData = () => {
     const newData = [];
     data.forEach((item: Idata) => {
@@ -186,8 +198,8 @@ function App() {
             onChange={(e) => setRegion(e.target.value)}
           >
             <option value="en">English</option>
-            <option value="pl">Polish</option>
             <option value="fi">Finnish</option>
+            <option value="pl">Polish</option>
           </select>
         </div>
         <div className="form-group col-sm">
@@ -227,6 +239,16 @@ function App() {
               setSeed(+e.target.value ? +e.target.value + page : 0)
             }
           />
+        </div>
+        <div className="form-group col-sm text-center">
+          <CSVLink
+            separator=";"
+            data={prepareCSVData(displayedData)}
+            filename={"data.csv"}
+            className="btn btn-primary"
+          >
+            Export to CSV
+          </CSVLink>
         </div>
       </div>
       <InfiniteScroll
