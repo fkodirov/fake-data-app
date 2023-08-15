@@ -13,6 +13,7 @@ function App() {
   const [changedData, setChangedData] = useState<any[]>([]);
   const [region, setRegion] = useState<string>("en");
   const [seed, setSeed] = useState<number>(0);
+  // const [hideSeed,setHideSeed]=useState<number>
   const [errorCount, setErrorCount] = useState<number>(0);
   const [count, setCount] = useState<number>(20);
   const [page, setPage] = useState<number>(1);
@@ -221,8 +222,10 @@ function App() {
           <input
             type="text"
             className="form-control"
-            value={seed}
-            onChange={(e) => setSeed(+e.target.value + page)}
+            value={seed ? seed - page : 0}
+            onChange={(e) =>
+              setSeed(+e.target.value ? +e.target.value + page : 0)
+            }
           />
         </div>
       </div>
