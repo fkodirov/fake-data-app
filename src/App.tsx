@@ -2,6 +2,7 @@ import "bootstrap/dist/css/bootstrap.min.css";
 import { useEffect, useState } from "react";
 import faker from "faker";
 import seedrandom from "seedrandom";
+import { string } from "prop-types";
 const alphabets = {
   en: "abcdefghijklmnopqrstuvwxyz",
   pl: "aąbcćdeęfghijklłmnńoóprsśtuwyzźż",
@@ -44,11 +45,19 @@ function App() {
     setData(data);
   };
 
+  const generateSeed = () => {
+    setSeed(Math.floor(Math.random() * 1000).toString());
+  };
   const phoneFormatter = (phoneNumber: string) => {
     return phoneNumber
       .split("-")
       .join("")
       .replace(/(\d{3})(?=\d)/g, "$1-");
+  };
+  const stringFormatter = (string: string) => {
+    return string.replace(/\.\s+([a-z])[^.]|(^|\s)\S|^(\s*[a-z])[^\.]/g, (s) =>
+      s.replace(/([a-z])/, (s) => s.toUpperCase())
+    );
   };
   const modifiedData = () => {
     const newData = [];
@@ -85,17 +94,23 @@ function App() {
             let randomSymbol;
             if (selectedField == "phone") {
               randomSymbol = Math.floor(newRandom() * 9);
+              return phoneFormatter(
+                (field =
+                  field.slice(0, randomIndex) +
+                  randomSymbol +
+                  field.slice(randomIndex))
+              );
             } else {
               const getAlphabet = alphabets.en;
               const newIndex = Math.floor(newRandom() * getAlphabet.length);
               randomSymbol = getAlphabet[newIndex];
+              return stringFormatter(
+                (field =
+                  field.slice(0, randomIndex) +
+                  randomSymbol +
+                  field.slice(randomIndex))
+              );
             }
-            return phoneFormatter(
-              (field =
-                field.slice(0, randomIndex) +
-                randomSymbol +
-                field.slice(randomIndex))
-            );
           } else if (error === "delete") {
             let newRandomIndex = Math.floor(randomGenerator() * field.length);
             if (selectedField == "phone") {
@@ -107,9 +122,11 @@ function App() {
                   field.slice(newRandomIndex + 1))
               );
             } else {
-              return (field =
-                field.slice(0, newRandomIndex) +
-                field.slice(newRandomIndex + 1));
+              return stringFormatter(
+                (field =
+                  field.slice(0, newRandomIndex) +
+                  field.slice(newRandomIndex + 1))
+              );
             }
           } else if (error === "swap") {
             if (selectedField == "phone") {
@@ -129,11 +146,13 @@ function App() {
               const newRandomIndex =
                 randomIndex == field.length - 1 ? randomIndex - 1 : randomIndex;
               const nextIndex = newRandomIndex + 1;
-              return (field =
-                field.slice(0, randomIndex) +
-                field[nextIndex] +
-                field[randomIndex] +
-                field.slice(nextIndex + 1));
+              return stringFormatter(
+                (field =
+                  field.slice(0, randomIndex) +
+                  field[nextIndex] +
+                  field[randomIndex] +
+                  field.slice(nextIndex + 1))
+              );
             }
           }
         })(changedValue);
@@ -156,42 +175,55 @@ function App() {
   return (
     <div className="container">
       <h1>Fake Data Generator</h1>
-      <div className="form-group">
-        <label>Region:</label>
-        <select
-          className="form-control"
-          value={region}
-          onChange={(e) => setRegion(e.target.value)}
-        >
-          <option value="en">English</option>
-          <option value="pl">Polish</option>
-          <option value="fi">Finnish</option>
-        </select>
+      <div className="toolbar d-flex justify-content-around gap-4">
+        <div className="form-group col-sm">
+          <select
+            className="form-select"
+            value={region}
+            onChange={(e) => setRegion(e.target.value)}
+          >
+            <option value="en">English</option>
+            <option value="pl">Polish</option>
+            <option value="fi">Finnish</option>
+          </select>
+        </div>
+        <div className="form-group col-sm">
+          <input
+            type="range"
+            min={0}
+            max={10}
+            step={0.25}
+            value={errorCount}
+            onChange={(e) => setErrorCount(parseFloat(e.target.value))}
+            className="form-range"
+          />
+        </div>
+
+        <div className="form-group col-sm">
+          <input
+            type="number"
+            step="0.25"
+            className="form-control"
+            value={errorCount}
+            onChange={(e) => {
+              setErrorCount(+e.target.value);
+            }}
+          />
+        </div>
+        <div className="form-group col-sm text-center">
+          <button className="btn btn-primary" onClick={() => generateSeed()}>
+            Generate Seed
+          </button>
+        </div>
+        <div className="form-group col-sm">
+          <input
+            type="text"
+            className="form-control"
+            value={seed}
+            onChange={(e) => setSeed(e.target.value)}
+          />
+        </div>
       </div>
-      <div className="form-group">
-        <label>Error Count:</label>
-        <input
-          type="number"
-          step="1"
-          className="form-control"
-          value={errorCount}
-          onChange={(e) => {
-            setErrorCount(+e.target.value);
-          }}
-        />
-      </div>
-      <div className="form-group">
-        <label>Seed:</label>
-        <input
-          type="text"
-          className="form-control"
-          value={seed}
-          onChange={(e) => setSeed(e.target.value)}
-        />
-      </div>
-      {/* <button className="btn btn-primary" onClick={generateData}>
-        Generate Data
-      </button> */}
       <table className="table table-hover table-responsive">
         <thead>
           <tr>
