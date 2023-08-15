@@ -20,13 +20,11 @@ function App() {
     phone: string;
   }
   useEffect(() => {
-    console.log(999);
     generateData();
   }, [region, seed]);
 
   useEffect(() => {
     if (data.length > 0) {
-      console.log(777);
       modifiedData();
     }
   }, [errorCount, data]);
@@ -46,6 +44,12 @@ function App() {
     setData(data);
   };
 
+  const phoneFormatter = (phoneNumber: string) => {
+    return phoneNumber
+      .split("-")
+      .join("")
+      .replace(/(\d{3})(?=\d)/g, "$1-");
+  };
   const modifiedData = () => {
     const newData = [];
     data.forEach((item: Idata) => {
@@ -86,23 +90,51 @@ function App() {
               const newIndex = Math.floor(newRandom() * getAlphabet.length);
               randomSymbol = getAlphabet[newIndex];
             }
-            return (field =
-              field.slice(0, randomIndex) +
-              randomSymbol +
-              field.slice(randomIndex));
+            return phoneFormatter(
+              (field =
+                field.slice(0, randomIndex) +
+                randomSymbol +
+                field.slice(randomIndex))
+            );
           } else if (error === "delete") {
-            const newRandomIndex = Math.floor(randomGenerator() * field.length);
-            return (field =
-              field.slice(0, newRandomIndex) + field.slice(newRandomIndex + 1));
+            let newRandomIndex = Math.floor(randomGenerator() * field.length);
+            if (selectedField == "phone") {
+              field = field.split("-").join("");
+              newRandomIndex = Math.floor(randomGenerator() * field.length);
+              return phoneFormatter(
+                (field =
+                  field.slice(0, newRandomIndex) +
+                  field.slice(newRandomIndex + 1))
+              );
+            } else {
+              return (field =
+                field.slice(0, newRandomIndex) +
+                field.slice(newRandomIndex + 1));
+            }
           } else if (error === "swap") {
-            const newRandomIndex =
-              randomIndex == field.length - 1 ? randomIndex - 1 : randomIndex;
-            const nextIndex = newRandomIndex + 1;
-            return (field =
-              field.slice(0, randomIndex) +
-              field[nextIndex] +
-              field[randomIndex] +
-              field.slice(nextIndex + 1));
+            if (selectedField == "phone") {
+              field = field.split("-").join("");
+              const randomIndex = Math.floor(randomGenerator() * field.length);
+              const newRandomIndex =
+                randomIndex == field.length - 1 ? randomIndex - 1 : randomIndex;
+              const nextIndex = newRandomIndex + 1;
+              return phoneFormatter(
+                (field =
+                  field.slice(0, randomIndex) +
+                  field[nextIndex] +
+                  field[randomIndex] +
+                  field.slice(nextIndex + 1))
+              );
+            } else {
+              const newRandomIndex =
+                randomIndex == field.length - 1 ? randomIndex - 1 : randomIndex;
+              const nextIndex = newRandomIndex + 1;
+              return (field =
+                field.slice(0, randomIndex) +
+                field[nextIndex] +
+                field[randomIndex] +
+                field.slice(nextIndex + 1));
+            }
           }
         })(changedValue);
 
