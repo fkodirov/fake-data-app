@@ -3,7 +3,6 @@ import { useEffect, useState } from "react";
 import faker from "faker";
 import seedrandom from "seedrandom";
 import InfiniteScroll from "react-infinite-scroll-component";
-import { saveAs } from "file-saver";
 import { CSVLink } from "react-csv";
 const alphabets = {
   en: "abcdefghijklmnopqrstuvwxyz",
@@ -64,7 +63,7 @@ function App() {
     );
   };
 
-  const prepareCSVData = (data) => {
+  const prepareCSVData = (data: Idata[]) => {
     return data.map((item, index) => ({
       Number: index + 1,
       Id: item.id,
@@ -75,7 +74,7 @@ function App() {
   };
 
   const modifiedData = () => {
-    const newData = [];
+    const newData: Idata[] = [];
     data.forEach((item: Idata) => {
       const randomGenerator = seedrandom(seed.toString());
       let { id, name, address, phone } = item;
