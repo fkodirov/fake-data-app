@@ -2,7 +2,7 @@ import "bootstrap/dist/css/bootstrap.min.css";
 import { useEffect, useState } from "react";
 import faker from "faker";
 import seedrandom from "seedrandom";
-import { string } from "prop-types";
+import InfiniteScroll from "react-infinite-scroll-component";
 const alphabets = {
   en: "abcdefghijklmnopqrstuvwxyz",
   pl: "aąbcćdeęfghijklłmnńoóprsśtuwyzźż",
@@ -14,6 +14,7 @@ function App() {
   const [region, setRegion] = useState<string>("en");
   const [seed, setSeed] = useState<string>("0");
   const [errorCount, setErrorCount] = useState<number>(0);
+  const [count, setCount] = useState<number>(20);
   interface Idata {
     id: string;
     name: string;
@@ -21,8 +22,8 @@ function App() {
     phone: string;
   }
   useEffect(() => {
-    generateData();
-  }, [region, seed]);
+    generateData(count);
+  }, [region, seed, count]);
 
   useEffect(() => {
     if (data.length > 0) {
@@ -30,12 +31,12 @@ function App() {
     }
   }, [errorCount, data]);
 
-  const generateData = () => {
+  const generateData = (count: number) => {
     faker.locale = region;
     faker.seed(parseInt(seed));
     const data = [];
 
-    for (let i = 0; i < 20; i++) {
+    for (let i = 0; i < count; i++) {
       const id = faker.datatype.uuid();
       const name = faker.name.findName();
       const address = faker.address.streetAddress();
@@ -224,28 +225,38 @@ function App() {
           />
         </div>
       </div>
-      <table className="table table-hover table-responsive">
-        <thead>
-          <tr>
-            <th>Number</th>
-            <th>Id</th>
-            <th>Name</th>
-            <th>Address</th>
-            <th>Phone</th>
-          </tr>
-        </thead>
-        <tbody>
-          {displayedData.map((item, index) => (
-            <tr key={item.id}>
-              <td>{index + 1}</td>
-              <td>{item.id}</td>
-              <td>{item.name}</td>
-              <td>{item.address}</td>
-              <td>{item.phone}</td>
+      <InfiniteScroll
+        dataLength={displayedData.length}
+        next={() => {
+          setCount((prevCount) => prevCount + 10);
+        }}
+        hasMore={true}
+        loader={<h4 className="text-center text-primary">Loading...</h4>}
+        scrollThreshold={1}
+      >
+        <table className="table table-hover table-responsive">
+          <thead>
+            <tr>
+              <th>Number</th>
+              <th>Id</th>
+              <th>Name</th>
+              <th>Address</th>
+              <th>Phone</th>
             </tr>
-          ))}
-        </tbody>
-      </table>
+          </thead>
+          <tbody>
+            {displayedData.map((item, index) => (
+              <tr key={item.id}>
+                <td>{index + 1}</td>
+                <td>{item.id}</td>
+                <td>{item.name}</td>
+                <td>{item.address}</td>
+                <td>{item.phone}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </InfiniteScroll>
     </div>
   );
 }
