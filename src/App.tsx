@@ -187,9 +187,9 @@ function App() {
   };
   const displayedData = errorCount === 0 ? data : changedData;
   return (
-    <div className="container">
-      <h1>Fake Data Generator</h1>
-      <div className="toolbar d-flex justify-content-around gap-4">
+    <div className="container-fluid px-3">
+      <h1 className="text-center mb-1">Fake Data Generator</h1>
+      <div className="toolbar d-flex justify-content-around gap-2 flex-md-row flex-column">
         <div className="form-group col-sm">
           <select
             className="form-select"
