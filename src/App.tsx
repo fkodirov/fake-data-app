@@ -12,9 +12,10 @@ function App() {
   const [data, setData] = useState<any[]>([]);
   const [changedData, setChangedData] = useState<any[]>([]);
   const [region, setRegion] = useState<string>("en");
-  const [seed, setSeed] = useState<string>("0");
+  const [seed, setSeed] = useState<number>(0);
   const [errorCount, setErrorCount] = useState<number>(0);
   const [count, setCount] = useState<number>(20);
+  const [page, setPage] = useState<number>(1);
   interface Idata {
     id: string;
     name: string;
@@ -33,7 +34,7 @@ function App() {
 
   const generateData = (count: number) => {
     faker.locale = region;
-    faker.seed(parseInt(seed));
+    faker.seed(seed);
     const data = [];
 
     for (let i = 0; i < count; i++) {
@@ -47,7 +48,7 @@ function App() {
   };
 
   const generateSeed = () => {
-    setSeed(Math.floor(Math.random() * 1000).toString());
+    setSeed(Math.floor(Math.random() * 1000));
   };
   const phoneFormatter = (phoneNumber: string) => {
     return phoneNumber
@@ -63,7 +64,7 @@ function App() {
   const modifiedData = () => {
     const newData = [];
     data.forEach((item: Idata) => {
-      const randomGenerator = seedrandom(seed);
+      const randomGenerator = seedrandom(seed.toString());
       let { id, name, address, phone } = item;
 
       const calcErrCount =
@@ -221,13 +222,14 @@ function App() {
             type="text"
             className="form-control"
             value={seed}
-            onChange={(e) => setSeed(e.target.value)}
+            onChange={(e) => setSeed(+e.target.value + page)}
           />
         </div>
       </div>
       <InfiniteScroll
         dataLength={displayedData.length}
         next={() => {
+          setPage((prevPage) => prevPage + 1);
           setCount((prevCount) => prevCount + 10);
         }}
         hasMore={true}
